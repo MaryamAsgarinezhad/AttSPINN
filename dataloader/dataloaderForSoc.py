@@ -411,7 +411,37 @@ class NASAdata(DF):
 
         return self.load_all_battery(path_list=paths,
                                      nominal_capacity=self.nominal_capacity)
+    
+    def read_specific(self, file_list):
+        """
+        Read exactly the CSV files in `file_list` (absolute paths or paths
+        relative to self.root), then package into the usual train/valid/test
+        DataLoader dict via load_all_battery.
+        
+        :param file_list: list of str paths (absolute or relative to self.root)
+        :return:          dict of DataLoaders, same API as read_all/load_one_batch
+        """
+        import os
 
+        # Resolve each entry into a full path under self.root if needed
+        resolved = []
+        for p in file_list:
+            full = p if os.path.isabs(p) else os.path.join(self.root, p)
+            if not os.path.isfile(full):
+                raise FileNotFoundError(f"{full} does not exist")
+            if not full.lower().endswith('.csv'):
+                raise ValueError(f"{full} is not a .csv file")
+            if os.path.getsize(full) == 0:
+                print(f"Skipping empty file {full}")
+                continue
+            resolved.append(full)
+
+        if not resolved:
+            raise ValueError("No valid CSV files to read in read_specific()")
+
+        # Delegate to your existing loader
+        return self.load_all_battery(path_list=resolved,
+                                     nominal_capacity=self.nominal_capacity)
     
 if __name__ == '__main__':
     import argparse

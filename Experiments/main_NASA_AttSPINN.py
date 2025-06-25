@@ -14,8 +14,12 @@ def calc_rmse(path):
 
 def load_data(args):
     # ---- change: load *all* batteries & modes
+    files = [
+    "charge/B0005/B0005_2.csv"    
+    ]
+
     data = NASAdata(root=args.data_root, args=args)
-    loader_dict = data.read_all(mode=None)  # None ⇒ both 'charge' & 'discharge'
+    loader_dict = data.read_specific(file_list=files) 
     return {
         'train': loader_dict['train_2'],
         'valid': loader_dict['valid_2'],
@@ -69,7 +73,6 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         model = SPINN(args, x_dim=x_dim, architecture_args=architecture_args).to(device)
-        # model = SPINN(args, x_dim=x_dim, architecture_args=architecture_args).cuda()
         count_parameters(model)
 
         print("Training on *all* NASA batteries...")
