@@ -99,7 +99,7 @@ def plot_residual_hist(save_folder):
 def main():
     args = get_args()
 
-    for exp in range(10):
+    for exp in range(4):
         # each experiment gets its own folder
         save_folder = os.path.join(args.save_root, f"Experiment{exp+1}")
         os.makedirs(save_folder, exist_ok=True)
@@ -170,7 +170,7 @@ def get_args():
     parser.add_argument('--normalization_method', type=str,
                         default='min-max', choices=['min-max','z-score'])
     # training schedule
-    parser.add_argument('--epochs', type=int, default=200)
+    parser.add_argument('--epochs', type=int, default=500)
     parser.add_argument('--warmup_epochs', type=int, default=30)
     parser.add_argument('--warmup_lr', type=float, default=0.002)
     parser.add_argument('--lr', type=float, default=0.01)
