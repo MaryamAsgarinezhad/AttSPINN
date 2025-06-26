@@ -4,6 +4,10 @@ import argparse, os
 import numpy as np
 from sklearn.metrics import mean_squared_error
 import torch
+import matplotlib.pyplot as plt
+import numpy as np
+import re
+import os
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -30,6 +34,67 @@ def load_data(args):
     #     'train': loader_dict['train_2'],
     #     'test' : loader_dict['valid_2'],
     # }
+
+def load_loss_history(log_path):
+    """
+    Parse training and validation losses from a standard AttSPINN logging.txt file.
+    Returns (epochs, train_losses, valid_losses).
+    """
+    train_losses = []
+    valid_losses = []
+    epochs = []
+    with open(log_path, 'r') as f:
+        for line in f:
+            # match train loss lines: "[Train] epoch:1, ..., total loss:0.123456"
+            m_train = re.search(r'\[Train\].*total loss:([0-9\.]+)', line)
+            if m_train:
+                train_losses.append(float(m_train.group(1)))
+                epochs.append(len(epochs) + 1)
+            # match validation MSE lines: "[Valid] epoch:1, MSE: 0.012345"
+            m_valid = re.search(r'\[Valid\].*MSE:\s*([0-9\.]+)', line)
+            if m_valid:
+                valid_losses.append(float(m_valid.group(1)))
+    return epochs, train_losses, valid_losses
+
+def plot_loss_curves(log_path, save_folder):
+    epochs, train_losses, valid_losses = load_loss_history(log_path)
+    plt.figure()
+    plt.plot(epochs, train_losses, label='Train Loss')
+    plt.plot(epochs[:len(valid_losses)], valid_losses, label='Valid MSE')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss / MSE')
+    plt.title('Training and Validation Curves')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_folder, 'loss_curves.png'))
+    plt.show()
+
+def plot_parity(save_folder):
+    pred = np.load(os.path.join(save_folder, 'pred_label.npy'))
+    true = np.load(os.path.join(save_folder, 'true_label.npy'))
+    plt.figure()
+    plt.scatter(true, pred, s=5, alpha=0.6)
+    mn, mx = min(true.min(), pred.min()), max(true.max(), pred.max())
+    plt.plot([mn, mx], [mn, mx], linestyle='--', linewidth=1)
+    plt.xlabel('True SoC')
+    plt.ylabel('Predicted SoC')
+    plt.title('Parity Plot')
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_folder, 'parity_plot.png'))
+    plt.show()
+
+def plot_residual_hist(save_folder):
+    pred = np.load(os.path.join(save_folder, 'pred_label.npy'))
+    true = np.load(os.path.join(save_folder, 'true_label.npy'))
+    residuals = pred - true
+    plt.figure()
+    plt.hist(residuals, bins=50, edgecolor='black')
+    plt.xlabel('Residual (Predicted - True)')
+    plt.ylabel('Count')
+    plt.title('Residual Distribution')
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_folder, 'residual_histogram.png'))
+    plt.show()
 
 def main():
     args = get_args()
@@ -84,6 +149,14 @@ def main():
 
         rmse = calc_rmse(save_folder)
         print(f"Experiment {exp+1} finished; RMSE = {rmse:.4f}")
+
+        experiment_folder = f"results/NASA/Experiment {exp+1}"
+        log_file = os.path.join(experiment_folder, 'logging.txt')
+
+        # Plot and save figures
+        plot_loss_curves(log_file, experiment_folder)
+        plot_parity(experiment_folder)
+        plot_residual_hist(experiment_folder)
 
 def get_args():
     parser = argparse.ArgumentParser('Hyperparameters for NASA data')
