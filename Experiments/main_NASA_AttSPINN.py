@@ -21,9 +21,9 @@ def load_data(args):
     data = NASAdata(root=args.data_root, args=args)
     loader_dict = data.read_specific(file_list=files) 
     return {
-        'train': loader_dict['train_2'],
-        'valid': loader_dict['valid_2'],
-        'test':  loader_dict['test_3'],
+        'train': loader_dict['train'],
+        'valid': loader_dict['valid'],
+        'test':  loader_dict['test'],
     }
 
     # return {
