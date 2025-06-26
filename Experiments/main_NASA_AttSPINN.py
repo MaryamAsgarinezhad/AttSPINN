@@ -150,7 +150,7 @@ def main():
         rmse = calc_rmse(save_folder)
         print(f"Experiment {exp+1} finished; RMSE = {rmse:.4f}")
 
-        experiment_folder = f"results/NASA/Experiment {exp+1}"
+        experiment_folder = f"results/NASA/Experiment{exp+1}"
         log_file = os.path.join(experiment_folder, 'logging.txt')
 
         # Plot and save figures
