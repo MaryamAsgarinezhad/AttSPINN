@@ -69,18 +69,23 @@ def plot_loss_curves(log_path, save_folder):
     plt.savefig(os.path.join(save_folder, 'loss_curves.png'))
     plt.show()
 
-def plot_parity(save_folder):
-    pred = np.load(os.path.join(save_folder, 'pred_label.npy'))
-    true = np.load(os.path.join(save_folder, 'true_label.npy'))
+def plot_parity_over_time(save_folder):
+    """
+    Plot true and predicted SoC over time (timestep index on x-axis).
+    """
+    pred = np.load(os.path.join(save_folder, 'pred_label.npy')).flatten()
+    true = np.load(os.path.join(save_folder, 'true_label.npy')).flatten()
+    time = np.arange(len(true))
+
     plt.figure()
-    plt.scatter(true, pred, s=5, alpha=0.6)
-    mn, mx = min(true.min(), pred.min()), max(true.max(), pred.max())
-    plt.plot([mn, mx], [mn, mx], linestyle='--', linewidth=1)
-    plt.xlabel('True SoC')
-    plt.ylabel('Predicted SoC')
-    plt.title('Parity Plot')
+    plt.plot(time, true, label='True SoC')
+    plt.plot(time, pred, label='Predicted SoC')
+    plt.xlabel('Timestep')
+    plt.ylabel('SoC (normalized)')
+    plt.title('SoC: True vs Predicted Over Time')
+    plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(save_folder, 'parity_plot.png'))
+    plt.savefig(os.path.join(save_folder, 'soc_over_time.png'))
     plt.show()
 
 def plot_residual_hist(save_folder):
@@ -155,7 +160,7 @@ def main():
 
         # Plot and save figures
         plot_loss_curves(log_file, experiment_folder)
-        plot_parity(experiment_folder)
+        plot_parity_over_time(experiment_folder)
         plot_residual_hist(experiment_folder)
 
 def get_args():
