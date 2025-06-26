@@ -155,11 +155,11 @@ class DF():
 
         train_loader = DataLoader(
             TensorDataset(train_X1, train_X2, train_Y1, train_Y2),
-            batch_size=self.args.batch_size, shuffle=True
+            batch_size=self.args.batch_size, shuffle=False
         )
         valid_loader = DataLoader(
             TensorDataset(valid_X1, valid_X2, valid_Y1, valid_Y2),
-            batch_size=self.args.batch_size, shuffle=True
+            batch_size=self.args.batch_size, shuffle=False
         )
         test_loader = DataLoader(
             TensorDataset(test_X1, test_X2, test_Y1, test_Y2),
@@ -174,11 +174,11 @@ class DF():
             )
         train_loader_2 = DataLoader(
             TensorDataset(train_X1, train_X2, train_Y1, train_Y2),
-            batch_size=self.args.batch_size, shuffle=True
+            batch_size=self.args.batch_size, shuffle=False
         )
         valid_loader_2 = DataLoader(
             TensorDataset(valid_X1, valid_X2, valid_Y1, valid_Y2),
-            batch_size=self.args.batch_size, shuffle=True
+            batch_size=self.args.batch_size, shuffle=False
         )
 
         # Condition 3: all data as test
